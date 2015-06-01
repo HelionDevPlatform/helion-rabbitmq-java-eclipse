@@ -19,7 +19,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ============================================================================ */
 
-package main.java.org.hp.samples;
+package org.hp.samples;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -47,32 +47,36 @@ public class RabbitServlet extends HttpServlet {
 
         PrintWriter writer = response.getWriter();
 
-        // Create an HTML form for the user to input a message for the queue
-        String docType = "<!doctype html public \"-//w3c//dtd html 4.0 "
-                + "transitional//en\">\n";
-        writer.println(docType + "<html>" + "<body>"
-                + "<p>RabbitMQ for Java</p>"
-                + "<form action='ProcessMessage' method='post'>"
-                + "Message to send: <input type='text' name='message'><br>"
-                + "<input type='submit' value='Send Message'>" + "</form>"
-                + "</body>" + "</html>");
-
         String uri = System.getenv("RABBITMQ_URL");
+        if( uri != null) {
+	        // Create an HTML form for the user to input a message for the queue
+	        String docType = "<!doctype html public \"-//w3c//dtd html 4.0 "
+	                + "transitional//en\">\n";
+	        writer.println(docType + "<html>" + "<body>"
+	                + "<p>RabbitMQ for Java</p>"
+	                + "<form action='ProcessMessage' method='post'>"
+	                + "Message to send: <input type='text' name='message'><br>"
+	                + "<input type='submit' value='Send Message'>" + "</form>"
+	                + "</body>" + "</html>");
 
-        ConnectionFactory factory = new ConnectionFactory();
-        try {
-            factory.setUri(uri);
-        } catch (KeyManagementException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
+        
+	        ConnectionFactory factory = new ConnectionFactory();
+	        try {
+	            factory.setUri(uri);
+	        } catch (KeyManagementException e) {
+	            e.printStackTrace();
+	        } catch (NoSuchAlgorithmException e) {
+	            e.printStackTrace();
+	        } catch (URISyntaxException e) {
+	            e.printStackTrace();
+	        }
+	        Connection connection = factory.newConnection();
+	        Channel channel = connection.createChannel();
+	
+	        channel.queueDeclare("hello", false, false, false, null);
+        } else{ 
+        	writer.println("Please configure RABBITMQ_URL to valid format: amqp://{user}:{password}@{host}:{port}/%2f");
         }
-        Connection connection = factory.newConnection();
-        Channel channel = connection.createChannel();
-
-        channel.queueDeclare("hello", false, false, false, null);
 
         writer.close();
     }

@@ -6,12 +6,12 @@
 	<display-name>rabbitmq-java</display-name>
 	<servlet>
 		<servlet-name>RabbitServlet</servlet-name>
-		<servlet-class>main.java.org.hp.samples.RabbitServlet</servlet-class>
+		<servlet-class>org.hp.samples.RabbitServlet</servlet-class>
 	</servlet>
 	
 	<servlet>
 		<servlet-name>ProcessMessage</servlet-name>
-		<servlet-class>main.java.org.hp.samples.ProcessMessage</servlet-class>
+		<servlet-class>org.hp.samples.ProcessMessage</servlet-class>
 	</servlet>
 
 	<servlet-mapping>

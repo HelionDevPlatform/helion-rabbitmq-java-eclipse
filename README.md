@@ -41,7 +41,17 @@ Then, *cd* into this app's root directory (directory with manifest.yml) and exec
 This will create the .war file within the 'target' directory. The pom.xml file 
 in the root directory is used by Maven to build the application.
 
-## Deploy the Application
+## Debugging the Application Locally
+
+Like all tomcat servlets, this application can be debugged in Eclipse. 
+Requirements: 
+1. a valid RabbitMQ instance, accessible via amqp://{user}:{password}@{host}:{port}/%2f URI
+2. a Tomcat server configured in Eclipse: see https://www.mulesoft.com/tcat/tomcat-wtp
+
+You can 'Run As' or 'Debug As' a tomcat server from the 'Run' menu option, assuming you have eclipse WTP installed.
+When you run or debug from Tomcat, be sure to set the RABBIT_MQ environment variable to point at the instance of RabbitMQ you are using. 
+   
+## Deploy the Application to Helion Development Platform
 
 Execute the following commands:
 
