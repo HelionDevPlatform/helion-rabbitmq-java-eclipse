@@ -46,11 +46,16 @@ in the root directory is used by Maven to build the application.
 Like all tomcat servlets, this application can be debugged in Eclipse. 
 Requirements: 
 
-- a valid RabbitMQ instance, accessible via amqp://{user}:{password}@{host}:{port}/%2f URI
-- a Tomcat server configured in Eclipse: see https://www.mulesoft.com/tcat/tomcat-wtp
+- A valid RabbitMQ instance, accessible via amqp://{user}:{password}@{host}:{port}/%2f URI
+- A Tomcat server configured in Eclipse: see https://www.mulesoft.com/tcat/tomcat-wtp
+
 
 You can 'Run As' or 'Debug As' a tomcat server from the 'Run' menu option, assuming you have eclipse WTP installed.
-When you run or debug from Tomcat, be sure to set the RABBIT_MQ environment variable to point at the instance of RabbitMQ you are using. 
+When you run or debug from Tomcat:
+- Set the RABBIT_MQ environment variable to point at the instance of RabbitMQ you are using.
+- Also explicitly add the amqp-client jar that maven pulled down as a provided library. 
+  - Do this by adding the amqp-client jar to the classpath of the tomcat servers Run/Debug configuration.
+  - This jar is located in your maven repository  at the relative path: .m2/repository/com/rabbitmq/amqp-client/2.8.1/amqp-client-2.8.1.jar 
    
 ## Deploy the Application to Helion Development Platform
 
