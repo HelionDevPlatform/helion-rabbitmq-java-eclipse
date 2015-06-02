@@ -19,7 +19,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ============================================================================ */
 
-package main.java.org.hp.samples;
+package org.hp.samples;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -50,55 +50,61 @@ public class ProcessMessage extends HttpServlet {
 
         // Pull out the RABBITMQ_URL environment variable
         String uri = System.getenv("RABBITMQ_URL");
+        
+        if (uri != null) {
 
-        ConnectionFactory factory = new ConnectionFactory();
-        try {
-            factory.setUri(uri);
-        } catch (KeyManagementException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
+	        ConnectionFactory factory = new ConnectionFactory();
+	        try {
+	            factory.setUri(uri);
+	        } catch (KeyManagementException e) {
+	            e.printStackTrace();
+	        } catch (NoSuchAlgorithmException e) {
+	            e.printStackTrace();
+	        } catch (URISyntaxException e) {
+	            e.printStackTrace();
+	        }
+	
+	        Connection connection = factory.newConnection();
+	        Channel channel = connection.createChannel();
+	
+	        // Create the queue
+	        channel.queueDeclare("hello", false, false, false, null);
+	
+	        String routingKey = "thekey";
+	        String exchangeName = "exchange";
+	
+	        // Declare an exchange and bind it to the queue
+	        channel.exchangeDeclare(exchangeName, "direct", true);
+	        channel.queueBind("hello", exchangeName, routingKey);
+	
+	        // Grab the message from the HTML form and publish it to the queue
+	        String message = request.getParameter("message");
+	        channel.basicPublish(exchangeName, routingKey, null, message.getBytes());
+	        writer.println(" Message sent to queue '" + message + "'");
+	
+	        boolean autoAck = false;
+	
+	        // Get the response message
+	        GetResponse responseMsg = channel.basicGet("hello", autoAck);
+	
+	        if (responseMsg == null) {
+	            // No message retrieved.
+	        } else {
+	            byte[] body = responseMsg.getBody();
+	            // Since getBody() returns a byte array, convert to a string for
+	            // the user.
+	            String bodyString = new String(body);
+	            long deliveryTag = responseMsg.getEnvelope().getDeliveryTag();
+	
+	            writer.println("Message received: " + bodyString);
+	
+	            // Acknowledge that we received the message so that the queue
+	            // removes the message so that it's not sent to us again.
+	            channel.basicAck(deliveryTag, false);
+	        }
         }
-
-        Connection connection = factory.newConnection();
-        Channel channel = connection.createChannel();
-
-        // Create the queue
-        channel.queueDeclare("hello", false, false, false, null);
-
-        String routingKey = "thekey";
-        String exchangeName = "exchange";
-
-        // Declare an exchange and bind it to the queue
-        channel.exchangeDeclare(exchangeName, "direct", true);
-        channel.queueBind("hello", exchangeName, routingKey);
-
-        // Grab the message from the HTML form and publish it to the queue
-        String message = request.getParameter("message");
-        channel.basicPublish(exchangeName, routingKey, null, message.getBytes());
-        writer.println(" Message sent to queue '" + message + "'");
-
-        boolean autoAck = false;
-
-        // Get the response message
-        GetResponse responseMsg = channel.basicGet("hello", autoAck);
-
-        if (responseMsg == null) {
-            // No message retrieved.
-        } else {
-            byte[] body = responseMsg.getBody();
-            // Since getBody() returns a byte array, convert to a string for
-            // the user.
-            String bodyString = new String(body);
-            long deliveryTag = responseMsg.getEnvelope().getDeliveryTag();
-
-            writer.println("Message received: " + bodyString);
-
-            // Acknowledge that we received the message so that the queue
-            // removes the message so that it's not sent to us again.
-            channel.basicAck(deliveryTag, false);
+        else {
+        	writer.println("Please configure RABBITMQ_URL to valid format: amqp://{user}:{password}@{host}:{port}/%2f");
         }
 
         writer.close();

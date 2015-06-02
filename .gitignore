@@ -1,0 +1,13 @@
+/build/
+
+.settings/org.eclipse.jdt.core.prefs
+
+.settings/org.eclipse.jdt.core.prefs
+
+*.prefs
+/build/
+/build/
+
+build/maven-archiver/pom.properties
+
+.settings/org.eclipse.jdt.core.prefs
