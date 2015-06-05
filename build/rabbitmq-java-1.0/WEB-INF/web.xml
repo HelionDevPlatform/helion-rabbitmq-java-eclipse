@@ -14,13 +14,28 @@
 		<servlet-class>org.hp.samples.ProcessMessage</servlet-class>
 	</servlet>
 
+
 	<servlet-mapping>
 		<servlet-name>RabbitServlet</servlet-name>
-		<url-pattern>/</url-pattern>
+		<url-pattern>/sendMessage</url-pattern>
 	</servlet-mapping>
 	
 	<servlet-mapping>
 		<servlet-name>ProcessMessage</servlet-name>
-		<url-pattern>/ProcessMessage</url-pattern>
+		<url-pattern>/processMessage</url-pattern>
 	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>default</servlet-name>
+		<url-pattern>*.html</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>default</servlet-name>
+		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+
+	<welcome-file-list>
+	   <welcome-file>index.html</welcome-file>
+	</welcome-file-list>	
 </web-app>

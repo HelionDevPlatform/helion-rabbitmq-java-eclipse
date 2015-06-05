@@ -15,7 +15,18 @@
           <artifactId>maven-war-plugin</artifactId>
           <configuration>
             <webXml>${basedir}\WebContent\WEB-INF\web.xml</webXml>
+            <webResources>
+            <resource>
+              <!-- this is relative to the pom.xml directory -->
+              <directory>WebContent</directory>
+              <!-- the list has a default value of ** -->
+              <includes>
+                <include>index.html</include>
+              </includes>
+            </resource>
+          	</webResources>
           </configuration>
+          
         </plugin>
       </plugins>
     </build>
