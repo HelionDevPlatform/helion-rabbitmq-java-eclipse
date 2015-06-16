@@ -22,7 +22,9 @@
               <!-- the list has a default value of ** -->
               <includes>
                 <include>index.html</include>
+                <include>static/*</include>
               </includes>
+              
             </resource>
           	</webResources>
           </configuration>

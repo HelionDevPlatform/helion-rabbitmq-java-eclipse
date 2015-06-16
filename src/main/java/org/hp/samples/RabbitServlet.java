@@ -45,40 +45,49 @@ public class RabbitServlet extends HttpServlet {
             HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/html");
         response.setStatus(200);
-
-        PrintWriter writer = response.getWriter();
-
-        String uri = System.getenv("RABBITMQ_URL");
-        if( uri != null) {
         
-	        ConnectionFactory factory = new ConnectionFactory();
-	        try {
-	            factory.setUri(uri);
-	        } catch (KeyManagementException e) {
-	            e.printStackTrace();
-	        } catch (NoSuchAlgorithmException e) {
-	            e.printStackTrace();
-	        } catch (URISyntaxException e) {
-	            e.printStackTrace();
+        PrintWriter writer = response.getWriter();
+        
+        String path = request.getServletPath();
+        
+        if(path != "/sendMessage") {
+        	
+	        
+	
+	        String uri = System.getenv("RABBITMQ_URL");
+	        if( uri != null) {
+	        
+		        ConnectionFactory factory = new ConnectionFactory();
+		        try {
+		            factory.setUri(uri);
+		        } catch (KeyManagementException e) {
+		            e.printStackTrace();
+		        } catch (NoSuchAlgorithmException e) {
+		            e.printStackTrace();
+		        } catch (URISyntaxException e) {
+		            e.printStackTrace();
+		        }
+		        Connection connection = factory.newConnection();
+		        Channel channel = connection.createChannel();
+		
+		        channel.queueDeclare("hello", false, false, false, null);
+		        
+		        String routingKey = "thekey";
+		        String exchangeName = "exchange";
+		
+		        // Declare an exchange and bind it to the queue
+		        channel.exchangeDeclare(exchangeName, "direct", true);
+		        channel.queueBind("hello", exchangeName, routingKey);
+		        
+		        // Grab the message from the HTML form and publish it to the queue
+		        String message = request.getParameter("message");
+		        channel.basicPublish(exchangeName, routingKey, null, message.getBytes());
+		        response.sendRedirect("processMessage");
+	        } else{ 
+	        	writer.println("Please configure RABBITMQ_URL to valid format: amqp://{user}:{password}@{host}:{port}/%2f");
 	        }
-	        Connection connection = factory.newConnection();
-	        Channel channel = connection.createChannel();
-	
-	        channel.queueDeclare("hello", false, false, false, null);
-	        
-	        String routingKey = "thekey";
-	        String exchangeName = "exchange";
-	
-	        // Declare an exchange and bind it to the queue
-	        channel.exchangeDeclare(exchangeName, "direct", true);
-	        channel.queueBind("hello", exchangeName, routingKey);
-	        
-	        // Grab the message from the HTML form and publish it to the queue
-	        String message = request.getParameter("message");
-	        channel.basicPublish(exchangeName, routingKey, null, message.getBytes());
-	        response.sendRedirect("processMessage");
-        } else{ 
-        	writer.println("Please configure RABBITMQ_URL to valid format: amqp://{user}:{password}@{host}:{port}/%2f");
+        } else {
+        	response.sendError(404);
         }
 
         writer.close();
