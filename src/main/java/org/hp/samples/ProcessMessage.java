@@ -41,7 +41,7 @@ public class ProcessMessage extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
 
-    protected void doPost(HttpServletRequest request,
+    protected void doGet(HttpServletRequest request,
             HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/plain");
         response.setStatus(200);
@@ -67,20 +67,6 @@ public class ProcessMessage extends HttpServlet {
 	        Connection connection = factory.newConnection();
 	        Channel channel = connection.createChannel();
 	
-	        // Create the queue
-	        channel.queueDeclare("hello", false, false, false, null);
-	
-	        String routingKey = "thekey";
-	        String exchangeName = "exchange";
-	
-	        // Declare an exchange and bind it to the queue
-	        channel.exchangeDeclare(exchangeName, "direct", true);
-	        channel.queueBind("hello", exchangeName, routingKey);
-	
-	        // Grab the message from the HTML form and publish it to the queue
-	        String message = request.getParameter("message");
-	        channel.basicPublish(exchangeName, routingKey, null, message.getBytes());
-	        writer.println(" Message sent to queue '" + message + "'");
 	
 	        boolean autoAck = false;
 	

@@ -49,6 +49,7 @@ Requirements:
 - A valid RabbitMQ instance, accessible via the URI amqp://{user}:{password}@{host}:{port}/%2f URI
 - A Tomcat server configured in Eclipse: see https://www.mulesoft.com/tcat/tomcat-wtp
 
+Installation details for Rabbit can be found here: https://www.rabbitmq.com/download.html. The default user:password for RabbitMQ is guest:guest. You can easily add/remove/modify users by installing the RabbitMQ management plugin: https://www.rabbitmq.com/management.html.
 
 You can 'Run As' or 'Debug As' a tomcat server from the 'Run' menu option, assuming you have eclipse WTP installed.
 When you run or debug from Tomcat:

@@ -28,6 +28,7 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -40,42 +41,53 @@ public class RabbitServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
 
-    protected void doGet(HttpServletRequest request,
+    protected void doPost(HttpServletRequest request,
             HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/html");
         response.setStatus(200);
-
-        PrintWriter writer = response.getWriter();
-
-        String uri = System.getenv("RABBITMQ_URL");
-        if( uri != null) {
-	        // Create an HTML form for the user to input a message for the queue
-	        String docType = "<!doctype html public \"-//w3c//dtd html 4.0 "
-	                + "transitional//en\">\n";
-	        writer.println(docType + "<html>" + "<body>"
-	                + "<p>RabbitMQ for Java</p>"
-	                + "<form action='ProcessMessage' method='post'>"
-	                + "Message to send: <input type='text' name='message'><br>"
-	                + "<input type='submit' value='Send Message'>" + "</form>"
-	                + "</body>" + "</html>");
-
         
-	        ConnectionFactory factory = new ConnectionFactory();
-	        try {
-	            factory.setUri(uri);
-	        } catch (KeyManagementException e) {
-	            e.printStackTrace();
-	        } catch (NoSuchAlgorithmException e) {
-	            e.printStackTrace();
-	        } catch (URISyntaxException e) {
-	            e.printStackTrace();
-	        }
-	        Connection connection = factory.newConnection();
-	        Channel channel = connection.createChannel();
+        PrintWriter writer = response.getWriter();
+        
+        String path = request.getServletPath();
+        
+        if(path != "/sendMessage") {
+        	
+	        
 	
-	        channel.queueDeclare("hello", false, false, false, null);
-        } else{ 
-        	writer.println("Please configure RABBITMQ_URL to valid format: amqp://{user}:{password}@{host}:{port}/%2f");
+	        String uri = System.getenv("RABBITMQ_URL");
+	        if( uri != null) {
+	        
+		        ConnectionFactory factory = new ConnectionFactory();
+		        try {
+		            factory.setUri(uri);
+		        } catch (KeyManagementException e) {
+		            e.printStackTrace();
+		        } catch (NoSuchAlgorithmException e) {
+		            e.printStackTrace();
+		        } catch (URISyntaxException e) {
+		            e.printStackTrace();
+		        }
+		        Connection connection = factory.newConnection();
+		        Channel channel = connection.createChannel();
+		
+		        channel.queueDeclare("hello", false, false, false, null);
+		        
+		        String routingKey = "thekey";
+		        String exchangeName = "exchange";
+		
+		        // Declare an exchange and bind it to the queue
+		        channel.exchangeDeclare(exchangeName, "direct", true);
+		        channel.queueBind("hello", exchangeName, routingKey);
+		        
+		        // Grab the message from the HTML form and publish it to the queue
+		        String message = request.getParameter("message");
+		        channel.basicPublish(exchangeName, routingKey, null, message.getBytes());
+		        response.sendRedirect("processMessage");
+	        } else{ 
+	        	writer.println("Please configure RABBITMQ_URL to valid format: amqp://{user}:{password}@{host}:{port}/%2f");
+	        }
+        } else {
+        	response.sendError(404);
         }
 
         writer.close();
